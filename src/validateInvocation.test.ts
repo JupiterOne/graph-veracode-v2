@@ -21,7 +21,7 @@ describe('#validateInvocation', () => {
     });
 
     await expect(validateInvocation(executionContext)).rejects.toThrow(
-      'Config requires all of {clientId, clientSecret}',
+      'Config requires all of {apiId, apiSecret}',
     );
   });
 
@@ -54,10 +54,10 @@ describe('#validateInvocation', () => {
      * error messaging is expected and clear to end-users
      */
     describe('invalid user credentials', () => {
-      test.skip('should throw if clientId is invalid', async () => {
+      test.skip('should throw if apiId is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
-          name: 'client-id-auth-error',
+          name: 'api-id-auth-error',
           // Many authorization failures will return non-200 responses
           // and `recordFailedRequest: true` is needed to capture these responses
           options: {
@@ -67,8 +67,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            clientId: 'INVALID',
-            clientSecret: integrationConfig.clientSecret,
+            apiId: 'INVALID',
+            apiSecret: integrationConfig.apiSecret,
           },
         });
 
@@ -79,10 +79,10 @@ describe('#validateInvocation', () => {
         );
       });
 
-      test.skip('should throw if clientSecret is invalid', async () => {
+      test.skip('should throw if apiSecret is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
-          name: 'client-secret-auth-error',
+          name: 'api-secret-auth-error',
           options: {
             recordFailedRequests: true,
           },
@@ -90,8 +90,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            clientId: integrationConfig.clientSecret,
-            clientSecret: 'INVALID',
+            apiId: integrationConfig.apiId,
+            apiSecret: 'INVALID',
           },
         });
 

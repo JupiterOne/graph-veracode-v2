@@ -1,36 +1,28 @@
 # Integration with JupiterOne
 
-## {{provider}} + JupiterOne Integration Benefits
+## Veracode + JupiterOne Integration Benefits
 
-TODO: Iterate the benefits of ingesting data from the provider into JupiterOne.
-Consider the following examples:
-
-- Visualize {{provider}} services, teams, and users in the JupiterOne graph.
-- Map {{provider}} users to employees in your JupiterOne account.
-- Monitor changes to {{provider}} users using JupiterOne alerts.
+- Visualize Veracode scans, cwes, vulnerabilities, and findings in the
+  JupiterOne graph.
+- Map Veracode findings to a code repo, project, or application in your
+  JupiterOne account.
+- Monitor Veracode cwes, findings, and vulnerabilities within the alerts app.
+- Monitor changes to Veracode scans using JupiterOne alerts.
 
 ## How it Works
 
-TODO: Iterate significant activities the integration enables. Consider the
-following examples:
-
-- JupiterOne periodically fetches services, teams, and users from {{provider}}
-  to update the graph.
-- Write JupiterOne queries to review and monitor updates to the graph, or
-  leverage existing queries.
-- Configure alerts to take action when JupiterOne graph changes, or leverage
-  existing alerts.
+- JupiterOne periodically fetches Veracode scans, cwes, vulerabilities, and
+  findings to update the graph.
+- Write JupiterOne queries to review and monitor updates to the graph.
+- Configure alerts to reduce the noise of findings.
+- Configure alerts to take action when the JupiterOne graph changes.
 
 ## Requirements
 
-TODO: Iterate requirements for setting up the integration. Consider the
-following examples:
-
-- {{provider}} supports the OAuth2 Client Credential flow. You must have a
-  Administrator user account.
-- JupiterOne requires a REST API key. You need permission to create a user in
-  {{provider}} that will be used to obtain the API key.
-- You must have permission in JupiterOne to install new integrations.
+- You must have administrator access in Veracode in order to create the
+  least-privledged access
+  [API service account](https://docs.veracode.com/r/c_about_veracode_accounts)
+  that the integration will use
 
 ## Support
 
@@ -39,45 +31,70 @@ If you need help with this integration, please contact
 
 ## Integration Walkthrough
 
-### In {{provider}}
+### In Veracode
 
-TODO: List specific actions that must be taken in the provider. Remove this
-section when there are no actions to take in the provider.
+The integration instance configuration requires the customer's API ID and secret
+to authenticate requests to the Veracode REST APIs. To do this in a
+least-privledged access manner, do the following:
 
-1. [Generate a REST API key](https://example.com/docs/generating-api-keys)
+1. using a Veracode account with admin permissions, create an
+   [Api service account](https://docs.veracode.com/r/c_about_veracode_accounts)
+
+- at the time of this writing, user creation can be done in Settings Button (top
+  right) => Admin => Add New User
+- be sure to check the `Non-Human User` checkbox, and enter an email you have
+  access to. You will login as the integration to generate keys scoped to the
+  limited permission set
+- in `Access Settings` enable the `Results API` option
+- feel free to use any username, first/last name you see fit. We recommend it
+  clearly indicate that the user is being used for a JupiterOne Integration
+- be sure to have `Login Enabled` set to `Yes`. Setting to `No` will not send
+  your email an activation link.
+
+2. after activating your integration's Api Service Account and setting your
+   password, login as the integration
+
+- be sure to verify you are logged in as integration by going to the
+  `Your Account` page in the veracode UI
+
+3. now generate your api keys for the integration
+
+- Drag your mouse to your user icon in the top right (same place you find the
+  `Your Account` button)
+- select `API Credentials` => `Generate API Credentials`
+- copy your Api Id and Secret contents (note that this only shows up once at
+  generation)
+
+4. Note that by default, your keys will expire after one year. If you have
+   expired keys, re-generate and update your integration in JupiterOne.
 
 ### In JupiterOne
 
-TODO: List specific actions that must be taken in JupiterOne. Many of the
-following steps will be reusable; take care to be sure they remain accurate.
-
 1. From the configuration **Gear Icon**, select **Integrations**.
-2. Scroll to the **{{provider}}** integration tile and click it.
+2. Scroll to the **Veracode** integration tile and click it.
 3. Click the **Add Configuration** button and configure the following settings:
 
-- Enter the **Account Name** by which you'd like to identify this {{provider}}
+- Enter the **Account Name** by which you'd like to identify this Veracode
   account in JupiterOne. Ingested entities will have this value stored in
   `tag.AccountName` when **Tag with Account Name** is checked.
 - Enter a **Description** that will further assist your team when identifying
   the integration instance.
 - Select a **Polling Interval** that you feel is sufficient for your monitoring
   needs. You may leave this as `DISABLED` and manually execute the integration.
-- {{additional provider-specific settings}} Enter the **{{provider}} API Key**
-  generated for use by JupiterOne.
+- Enter the **API ID** used to authenticate with Veracode.
+- Enter the **API Secret** used to authenticate with Veracode.
 
 4. Click **Create Configuration** once all values are provided.
 
 # How to Uninstall
-
-TODO: List specific actions that must be taken to uninstall the integration.
-Many of the following steps will be reusable; take care to be sure they remain
-accurate.
 
 1. From the configuration **Gear Icon**, select **Integrations**.
 2. Scroll to the **{{provider}}** integration tile and click it.
 3. Identify and click the **integration to delete**.
 4. Click the **trash can** icon.
 5. Click the **Remove** button to delete the integration.
+6. We recommend you revoke the api keys for the `API Service Account` you
+   created in Veracode
 
 <!-- {J1_DOCUMENTATION_MARKER_START} -->
 <!--
@@ -96,21 +113,9 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type` | Entity `_class` |
-| --------- | -------------- | --------------- |
-| Account   | `acme_account` | `Account`       |
-| User      | `acme_user`    | `User`          |
-| UserGroup | `acme_group`   | `UserGroup`     |
-
-### Relationships
-
-The following relationships are created:
-
-| Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
-| --------------------- | --------------------- | --------------------- |
-| `acme_account`        | **HAS**               | `acme_group`          |
-| `acme_account`        | **HAS**               | `acme_user`           |
-| `acme_group`          | **HAS**               | `acme_user`           |
+| Resources | Entity `_type`     | Entity `_class` |
+| --------- | ------------------ | --------------- |
+| Account   | `veracode_account` | `Account`       |
 
 <!--
 ********************************************************************************

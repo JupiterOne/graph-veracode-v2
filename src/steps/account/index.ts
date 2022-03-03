@@ -10,11 +10,13 @@ import { createAccountEntity } from './converter';
 export const ACCOUNT_ENTITY_KEY = 'entity:account';
 
 export async function fetchAccountDetails({
+  instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const accountEntity = await jobState.addEntity(createAccountEntity());
-
-  await jobState.setData(ACCOUNT_ENTITY_KEY, accountEntity);
+  const accountEntity = createAccountEntity(instance);
+  await jobState.addEntity(accountEntity);
+  // use later in both domain ingestion
+  await jobState.setData(ACCOUNT_ENTITY_KEY, accountEntity._key);
 }
 
 export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
