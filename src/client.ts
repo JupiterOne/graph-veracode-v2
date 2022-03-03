@@ -85,8 +85,8 @@ class VeracodeClient {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
         endpoint: applicationsEndpoint,
-        status: err.status,
-        statusText: err.statusText,
+        status: err.response?.statusCode,
+        statusText: err.response?.statusMessage,
       });
     }
   }
