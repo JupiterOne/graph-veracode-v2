@@ -1,5 +1,6 @@
 import {
   IntegrationLogger,
+  IntegrationProviderAPIError,
   IntegrationProviderAuthenticationError,
 } from '@jupiterone/integration-sdk-core';
 
@@ -7,6 +8,7 @@ import { randomBytes, createHmac } from 'crypto';
 
 import got, { RequiredRetryOptions } from 'got';
 import { IntegrationConfig } from './config';
+import { Application, ApplicationResponse } from './types';
 
 const AUTH_SCHEME = 'VERACODE-HMAC-SHA-256';
 const HASH_ALGORITHM = 'sha256';
@@ -19,6 +21,11 @@ const BASE_URI_V1 = 'https://api.veracode.com/appsec/v1/';
 const gotRetryOptions: Partial<RequiredRetryOptions> = {
   limit: 3,
 };
+
+interface getApplicationBatchResponse {
+  applications: Application[];
+  nextUri?: string;
+}
 
 class VeracodeClient {
   constructor(
@@ -85,6 +92,33 @@ class VeracodeClient {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
         endpoint: applicationsEndpoint,
+        status: err.response?.statusCode,
+        statusText: err.response?.statusMessage,
+      });
+    }
+  }
+
+  public async getApplicationBatch(
+    uri: string = BASE_URI_V1 + 'applications',
+  ): Promise<getApplicationBatchResponse> {
+    const applicationsRequest = got.get(uri, {
+      headers: {
+        Authorization: this.calculateAuthorizationHeader(uri, 'GET'),
+      },
+      retry: gotRetryOptions,
+    });
+    let response: ApplicationResponse;
+    try {
+      const result = await applicationsRequest;
+      response = JSON.parse(result.body);
+      return {
+        applications: response._embedded,
+        nextUri: response._links.next?.href,
+      };
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: uri,
         status: err.response?.statusCode,
         statusText: err.response?.statusMessage,
       });
