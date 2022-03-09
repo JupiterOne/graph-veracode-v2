@@ -5,6 +5,7 @@ import {
   StepMappedRelationshipMetadata,
   StepRelationshipMetadata,
 } from '@jupiterone/integration-sdk-core';
+import { Scans } from '../types';
 
 export const Steps = {
   ACCOUNT: 'fetch-account',
@@ -67,10 +68,14 @@ export const Entities: Record<
       additionalProperties: true,
       properties: {
         _type: { const: 'veracode_scan' },
-        _key: { enum: ['veracode-scan-static', 'veracode-scan-dynamic'] },
+        _key: {
+          enum: Object.keys(Scans).map(
+            (scan_type) => `veracode_scan_${scan_type.toLowerCase()}`,
+          ),
+        },
         category: { const: 'software' },
-        displayName: { enum: ['DYNAMIC', 'STATIC'] },
-        name: { enum: ['DYNAMIC', 'STATIC'] },
+        displayName: { enum: Object.keys(Scans) },
+        name: { enum: ['DYNAMIC', 'STATIC', 'MANUAL'] },
         createdOn: { type: 'number' },
         createdBy: { type: 'string' },
         updatedOn: { type: 'number' },
