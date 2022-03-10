@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- security vuln in url-parse
+
 ### Added
 
 - cleanup from template
