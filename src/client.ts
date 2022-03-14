@@ -1,5 +1,6 @@
 import {
   IntegrationLogger,
+  IntegrationProviderAPIError,
   IntegrationProviderAuthenticationError,
 } from '@jupiterone/integration-sdk-core';
 
@@ -7,6 +8,12 @@ import { randomBytes, createHmac } from 'crypto';
 
 import got, { RequiredRetryOptions } from 'got';
 import { IntegrationConfig } from './config';
+import {
+  Application,
+  ApplicationApiResponse,
+  FindingsApiResponse,
+  Finding,
+} from './types';
 
 const AUTH_SCHEME = 'VERACODE-HMAC-SHA-256';
 const HASH_ALGORITHM = 'sha256';
@@ -14,11 +21,17 @@ const REQUEST_VERSION = 'vcode_request_version_1';
 const NONCE_SIZE = 16;
 
 const BASE_URI_V1 = 'https://api.veracode.com/appsec/v1/';
+const BASE_URI_V2 = 'https://api.veracode.com/appsec/v2/';
 
 // https://github.com/sindresorhus/got/blob/HEAD/documentation/7-retry.md#retry-api
 const gotRetryOptions: Partial<RequiredRetryOptions> = {
   limit: 3,
 };
+
+interface PaginatedResponse<T> {
+  items: T[];
+  nextUri?: string;
+}
 
 class VeracodeClient {
   constructor(
@@ -85,6 +98,72 @@ class VeracodeClient {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
         endpoint: applicationsEndpoint,
+        status: err.response?.statusCode,
+        statusText: err.response?.statusMessage,
+      });
+    }
+  }
+
+  public async getApplicationBatch(
+    uri: string = BASE_URI_V1 + 'applications',
+  ): Promise<PaginatedResponse<Application>> {
+    const applicationsRequest = got.get(uri, {
+      headers: {
+        Authorization: this.calculateAuthorizationHeader(uri, 'GET'),
+      },
+      retry: gotRetryOptions,
+    });
+    let response: ApplicationApiResponse;
+    try {
+      const result = await applicationsRequest;
+      response = JSON.parse(result.body);
+      return {
+        items: response._embedded.applications,
+        nextUri: response._links.next?.href,
+      };
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: uri,
+        status: err.response?.statusCode,
+        statusText: err.response?.statusMessage,
+      });
+    }
+  }
+
+  public async getFindingsBatch(
+    applicationGuid: string,
+    uri?: string,
+  ): Promise<PaginatedResponse<Finding>> {
+    // we must include query params in uri string since we use it to calculate auth header
+    // we only wish to have findings that violate application policies in our graph
+    if (!uri) {
+      uri =
+        BASE_URI_V2 +
+        `applications/${applicationGuid}/findings?violates_policy=true`;
+    } else {
+      uri += '&violates_policy=true';
+    }
+    const authHeader = this.calculateAuthorizationHeader(uri, 'GET');
+    const findingsRequest = got.get(uri, {
+      headers: {
+        Authorization: authHeader,
+      },
+      retry: gotRetryOptions,
+    });
+    let response: FindingsApiResponse;
+    try {
+      const result = await findingsRequest;
+      response = JSON.parse(result.body);
+      return {
+        items: response._embedded?.findings || [],
+        nextUri: response._links.next?.href,
+      };
+    } catch (err) {
+      console.error(err);
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: uri,
         status: err.response?.statusCode,
         statusText: err.response?.statusMessage,
       });
