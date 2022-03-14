@@ -3,12 +3,21 @@ interface ApplicationProfile {
   name: string;
 }
 
+interface ApplicationScan {
+  internal_status: string;
+  modified_date: string;
+  scan_type: string;
+  scan_url: string;
+}
+
 export interface Application {
   guid: string;
   profile: ApplicationProfile;
-  last_completed_scan_date: String;
-  created: String;
-  Modified: String;
+  last_completed_scan_date: string;
+  created: string;
+  modified: string;
+  results_url: string;
+  scans: ApplicationScan[];
 }
 
 // Scans

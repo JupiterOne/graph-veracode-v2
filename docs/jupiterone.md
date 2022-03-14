@@ -113,9 +113,18 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type`     | Entity `_class` |
-| --------- | ------------------ | --------------- |
-| Account   | `veracode_account` | `Account`       |
+| Resources   | Entity `_type`         | Entity `_class` |
+| ----------- | ---------------------- | --------------- |
+| Account     | `veracode_account`     | `Account`       |
+| Application | `veracode_application` | `Application`   |
+
+### Relationships
+
+The following relationships are created:
+
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type`  |
+| --------------------- | --------------------- | ---------------------- |
+| `veracode_account`    | **HAS**               | `veracode_application` |
 
 <!--
 ********************************************************************************

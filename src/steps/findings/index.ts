@@ -5,38 +5,38 @@ import {
 import { createAPIClient } from '../../client';
 
 import { IntegrationConfig } from '../../config';
-import { Steps } from '../constants';
-
-export const ACCOUNT_ENTITY_KEY = 'entity:account';
+import { Entities, Steps } from '../constants';
 
 export async function fetchFindings({
   instance,
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  // const accountEntity = jobState.getData(ACCOUNT_ENTITY_KEY);
   const veracodeClient = createAPIClient(instance.config, logger);
-  let nextApplicationUri;
-  do {
-    const { nextUri, items } = await veracodeClient.getApplicationBatch(
-      nextApplicationUri,
-    );
-    nextApplicationUri = nextUri;
-    for (const application of items) {
-      console.log(application);
+  let totalFindingsProcessed = 0;
+  await jobState.iterateEntities(
+    { _type: Entities.APPLICATION._type },
+    async (applicationEntity) => {
       let findingNextUri;
+      let findingsFoundForApp = 0;
       do {
         const { nextUri, items } = await veracodeClient.getFindingsBatch(
-          application.guid,
+          applicationEntity._key,
           findingNextUri,
         );
         findingNextUri = nextUri;
         for (const finding of items) {
-          console.log(finding);
+          logger.info(finding.description); //TODO: will delete, pass type-check for now
+          ++findingsFoundForApp;
         }
       } while (findingNextUri);
-    }
-  } while (nextApplicationUri);
+      logger.info(
+        `${findingsFoundForApp} findings for application ${applicationEntity.displayName}`,
+      );
+      totalFindingsProcessed += findingsFoundForApp;
+    },
+  );
+  logger.info(`${totalFindingsProcessed} findings found in total`);
 }
 
 export const findingSteps: IntegrationStep<IntegrationConfig>[] = [
@@ -45,7 +45,7 @@ export const findingSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Findings',
     entities: [],
     relationships: [],
-    dependsOn: [Steps.ACCOUNT],
+    dependsOn: [Steps.APPLICATIONS],
     executionHandler: fetchFindings,
   },
 ];

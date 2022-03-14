@@ -135,12 +135,19 @@ class VeracodeClient {
     applicationGuid: string,
     uri?: string,
   ): Promise<PaginatedResponse<Finding>> {
+    // we must include query params in uri string since we use it to calculate auth header
+    // we only wish to have findings that violate application policies in our graph
     if (!uri) {
-      uri = BASE_URI_V2 + `applications/${applicationGuid}/findings`;
+      uri =
+        BASE_URI_V2 +
+        `applications/${applicationGuid}/findings?violates_policy=true`;
+    } else {
+      uri += '&violates_policy=true';
     }
+    const authHeader = this.calculateAuthorizationHeader(uri, 'GET');
     const findingsRequest = got.get(uri, {
       headers: {
-        Authorization: this.calculateAuthorizationHeader(uri, 'GET'),
+        Authorization: authHeader,
       },
       retry: gotRetryOptions,
     });

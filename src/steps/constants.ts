@@ -10,10 +10,11 @@ import { Scans } from '../types';
 export const Steps = {
   ACCOUNT: 'fetch-account',
   FINDINGS: 'fetch-findings',
+  APPLICATIONS: 'fetch-applications',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'CWE' | 'SCAN' | 'VULNERABILITY' | 'FINDING',
+  'ACCOUNT' | 'CWE' | 'APPLICATION' | 'VULNERABILITY' | 'FINDING',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -27,6 +28,30 @@ export const Entities: Record<
         _key: { type: 'string' },
         name: { type: 'string' },
         displayName: { type: 'string' },
+        createdOn: { type: 'number' },
+        createdBy: { type: 'string' },
+        updatedOn: { type: 'number' },
+        updatedBy: { type: 'string' },
+        _rawData: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+      },
+      required: [],
+    },
+  },
+  APPLICATION: {
+    resourceName: 'Application',
+    _type: 'veracode_application',
+    _class: ['Application'],
+    schema: {
+      additionalProperties: true,
+      properties: {
+        _type: { const: 'veracode_application' },
+        _key: { type: 'string' },
+        displayName: { type: 'string' },
+        name: { type: 'string' },
+        lastCompletedScanDate: { type: 'number' },
         createdOn: { type: 'number' },
         createdBy: { type: 'string' },
         updatedOn: { type: 'number' },
@@ -60,30 +85,6 @@ export const Entities: Record<
       required: [],
     },
   },
-  SCAN: {
-    resourceName: 'Scan',
-    _type: 'veracode_scan',
-    _class: ['Service'],
-    schema: {
-      additionalProperties: true,
-      properties: {
-        _type: { const: 'veracode_scan' },
-        _key: {
-          enum: Object.keys(Scans).map(
-            (scan_type) => `veracode_scan_${scan_type.toLowerCase()}`,
-          ),
-        },
-        category: { const: 'software' },
-        displayName: { enum: Object.keys(Scans) },
-        name: { enum: ['DYNAMIC', 'STATIC', 'MANUAL'] },
-        createdOn: { type: 'number' },
-        createdBy: { type: 'string' },
-        updatedOn: { type: 'number' },
-        updatedBy: { type: 'string' },
-      },
-      required: [],
-    },
-  },
   VULNERABILITY: {
     resourceName: 'Vulnerability',
     _type: 'veracode_vulnerability',
@@ -99,7 +100,7 @@ export const Entities: Record<
         displayName: { type: 'string' },
         description: { type: 'string' },
         category: { type: 'string' },
-        scanType: { type: 'string' },
+        scanType: { enum: Object.keys(Scans) },
         numericExploitability: { type: 'number' },
         severity: { type: 'string' },
         public: { type: 'boolean' },
@@ -131,7 +132,7 @@ export const Entities: Record<
         severity: { type: 'string' },
         numericExploitability: { type: 'number' },
         exploitability: { type: 'string' },
-        scanType: { type: 'string' },
+        scanType: { enum: Object.keys(Scans) },
         foundDate: { type: 'number' },
         modifiedDate: { type: 'number' },
         sourceModule: { type: 'string' },
@@ -149,29 +150,28 @@ export const Entities: Record<
 };
 
 export const Relationships: Record<
-  | 'ACCOUNT_HAS_SCAN'
-  | 'SCAN_IDENTIFIED_VULNERABILITY'
-  | 'SCAN_IDENTIFIED_FINDING'
+  | 'ACCOUNT_HAS_APPLICATION'
+  | 'APPLICATION_IDENTIFIED_VULNERABILITY'
+  | 'APPLICATION_IDENTIFIED_FINDING'
   | 'VULNERABILITY_EXPLOITS_CWE'
   | 'FINDING_IS_VULNERABILITY',
   StepRelationshipMetadata | StepMappedRelationshipMetadata
 > = {
-  ACCOUNT_HAS_SCAN: {
-    // Note: SCAN ≡ SERVICE from naming perspective. Had to keep consistent with legacy graph project
-    _type: 'veracode_account_has_service',
+  ACCOUNT_HAS_APPLICATION: {
+    _type: 'veracode_account_has_application',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.SCAN._type,
+    targetType: Entities.APPLICATION._type,
   },
-  SCAN_IDENTIFIED_VULNERABILITY: {
-    _type: 'veracode_scan_identified_vulnerability',
-    sourceType: Entities.SCAN._type,
+  APPLICATION_IDENTIFIED_VULNERABILITY: {
+    _type: 'veracode_application_identified_vulnerability',
+    sourceType: Entities.APPLICATION._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.VULNERABILITY._type,
   },
-  SCAN_IDENTIFIED_FINDING: {
-    _type: 'veracode_scan_identified_finding',
-    sourceType: Entities.SCAN._type,
+  APPLICATION_IDENTIFIED_FINDING: {
+    _type: 'veracode_application_identified_finding',
+    sourceType: Entities.APPLICATION._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.FINDING._type,
   },
