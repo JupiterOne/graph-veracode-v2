@@ -28,11 +28,10 @@ export async function fetchApplications({
       nextApplicationUri,
     );
     nextApplicationUri = nextUri;
-    const jobStateUpdates: Promise<any>[] = [];
     const applicationEntities = items.map((application) =>
       createApplicationEntity(application),
     );
-    jobStateUpdates.push(jobState.addEntities(applicationEntities));
+    await jobState.addEntities(applicationEntities);
     const relationships = applicationEntities.map((applicationEntity) => {
       return createDirectRelationship({
         _class: RelationshipClass.HAS,
@@ -40,8 +39,7 @@ export async function fetchApplications({
         to: applicationEntity,
       });
     });
-    jobStateUpdates.push(jobState.addRelationships(relationships));
-    await Promise.all(jobStateUpdates);
+    await jobState.addRelationships(relationships);
   } while (nextApplicationUri);
 }
 
