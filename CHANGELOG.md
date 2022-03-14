@@ -8,10 +8,15 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- security vuln in url-parse
+
 ### Added
 
 - cleanup from template
 - account entity
+- application entity
 - docs
 - tests
 - veracode client with valid auth
