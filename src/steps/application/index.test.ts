@@ -19,9 +19,10 @@ describe('applicationSteps', () => {
       });
 
       const stepConfig = buildStepTestConfigForStep(Steps.APPLICATIONS);
-      await expect(
-        executeStepWithDependencies(stepConfig),
-      ).resolves.toMatchStepMetadata(stepConfig);
+      const stepResult = await executeStepWithDependencies(stepConfig);
+      expect(stepResult.collectedEntities.length).toBe(1);
+      expect(stepResult.collectedRelationships.length).toBe(1);
+      expect(stepResult).toMatchStepMetadata(stepConfig);
     });
   });
 });

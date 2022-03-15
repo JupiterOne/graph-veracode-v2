@@ -45,6 +45,11 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
    * The provider API client secret used to authenticate requests.
    */
   apiSecret: string;
+
+  /**
+   * For use in tests only. Avoid ingesting entire account's worth of applications to reduce PollyJS Recording size
+   */
+  targetApplication?: string;
 }
 
 export async function validateInvocation(

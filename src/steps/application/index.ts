@@ -5,7 +5,7 @@ import {
   IntegrationStepExecutionContext,
   RelationshipClass,
 } from '@jupiterone/integration-sdk-core';
-import { createAPIClient } from '../../client';
+import { BASE_URI_V1, createAPIClient } from '../../client';
 
 import { IntegrationConfig } from '../../config';
 import { ACCOUNT_ENTITY_KEY } from '../account';
@@ -23,6 +23,11 @@ export async function fetchApplications({
   const accountEntity = (await jobState.findEntity(accountEntityKey)) as Entity;
   const veracodeClient = createAPIClient(instance.config, logger);
   let nextApplicationUri;
+  if (instance.config.targetApplication) {
+    // only possible using test config
+    nextApplicationUri =
+      BASE_URI_V1 + 'applications?name=' + instance.config.targetApplication;
+  }
   do {
     const { nextUri, items } = await veracodeClient.getApplicationBatch(
       nextApplicationUri,
