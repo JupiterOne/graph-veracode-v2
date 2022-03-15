@@ -17,6 +17,8 @@ and this project adheres to
 - cleanup from template
 - account entity
 - application entity
+- findings from static scans
+- relationships b/w these entities
 - docs
 - tests
 - veracode client with valid auth
