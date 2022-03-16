@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+[1.0.0] - 2022-03-16
+
 ### Fixed
 
 - security vuln in url-parse
