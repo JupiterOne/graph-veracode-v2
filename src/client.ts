@@ -160,7 +160,7 @@ class VeracodeClient {
       };
       if (toReturn.nextUri && toReturn.items.length !== FINDINGS_PAGE_SIZE) {
         throw new Error(
-          'Veracode Findings Api did not serve full page (known veracode bug), failing Findings ingestion to prevent unintended entity deletion',
+          'Veracode Findings Api did not serve full page despite having a nextUri, failing Findings ingestion to prevent unintended entity deletion',
         );
       }
       return toReturn;
