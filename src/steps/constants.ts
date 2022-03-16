@@ -14,7 +14,7 @@ export const Steps = {
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'CWE' | 'APPLICATION' | 'VULNERABILITY' | 'FINDING',
+  'ACCOUNT' | 'CWE' | 'APPLICATION' | 'FINDING',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -77,37 +77,7 @@ export const Entities: Record<
         description: { type: 'string' },
         displayName: { type: 'string' },
         name: { type: 'string' },
-        recommendation: { type: 'string' },
-        references: { type: 'array', items: { type: 'string' } },
-        remediation_effort: { type: 'number' },
-        severity: { type: 'number' },
-      },
-      required: [],
-    },
-  },
-  VULNERABILITY: {
-    resourceName: 'Vulnerability',
-    _type: 'veracode_vulnerability',
-    _class: ['Vulnerability'],
-    schema: {
-      additionalProperties: true,
-      properties: {
-        _type: { const: 'veracode_vulnerability' },
-        _key: { type: 'string' },
-        id: { type: 'string' },
-        cwe: { type: 'string' },
-        name: { type: 'string' },
-        displayName: { type: 'string' },
-        description: { type: 'string' },
-        category: { type: 'string' },
-        scanType: { enum: Object.keys(Scans) },
-        numericExploitability: { type: 'number' },
-        severity: { type: 'string' },
-        public: { type: 'boolean' },
-        createdOn: { type: 'number' },
-        createdBy: { type: 'string' },
-        updatedOn: { type: 'number' },
-        updatedBy: { type: 'string' },
+        references: { type: 'array', items: { type: 'string' }, minItems: 1 },
       },
       required: [],
     },
@@ -123,22 +93,27 @@ export const Entities: Record<
         _key: { type: 'string' },
         name: { type: 'string' },
         displayName: { type: 'string' },
-        targets: { type: 'string' },
+        description: { type: 'string' },
+        count: { type: 'number' },
+        scanType: { enum: Object.keys(Scans) },
+        category: { type: 'string' },
+        foundDate: { type: 'number' },
         open: { type: 'boolean' },
-        reopened: { type: 'boolean' },
         resolution: { type: 'string' },
         resolutionStatus: { type: 'string' },
+        lastSeenDate: { type: 'number' },
         numericSeverity: { type: 'number' },
         severity: { type: 'string' },
-        numericExploitability: { type: 'number' },
-        exploitability: { type: 'string' },
-        scanType: { enum: Object.keys(Scans) },
-        foundDate: { type: 'number' },
-        modifiedDate: { type: 'number' },
-        sourceModule: { type: 'string' },
-        sourceFileName: { type: 'string' },
-        sourceFileLineNumber: { type: 'string' },
-        sourceFilePath: { type: 'string' },
+        module: { type: 'string' },
+        filePath: { type: 'string' },
+        fileName: { type: 'string' },
+        fileLineNumber: { type: 'number' },
+        procedure: { type: 'string' },
+        exploitability: { type: 'number' },
+        exploitabilityDescription: { type: 'string' },
+        attackVector: { type: 'string' },
+        findingCategoryName: { type: 'string' },
+        findingCategoryId: { type: 'number' },
         createdOn: { type: 'number' },
         createdBy: { type: 'string' },
         updatedOn: { type: 'number' },
@@ -149,13 +124,22 @@ export const Entities: Record<
   },
 };
 
+export const MappedRelationships: Record<
+  'FINDING_EXPLOITS_CWE',
+  StepMappedRelationshipMetadata
+> = {
+  FINDING_EXPLOITS_CWE: {
+    _type: 'veracode_finding_exploits_cwe',
+    sourceType: Entities.FINDING._type,
+    _class: RelationshipClass.EXPLOITS,
+    targetType: Entities.CWE._type,
+    direction: RelationshipDirection.FORWARD,
+  },
+};
+
 export const Relationships: Record<
-  | 'ACCOUNT_HAS_APPLICATION'
-  | 'APPLICATION_IDENTIFIED_VULNERABILITY'
-  | 'APPLICATION_IDENTIFIED_FINDING'
-  | 'VULNERABILITY_EXPLOITS_CWE'
-  | 'FINDING_IS_VULNERABILITY',
-  StepRelationshipMetadata | StepMappedRelationshipMetadata
+  'ACCOUNT_HAS_APPLICATION' | 'APPLICATION_IDENTIFIED_FINDING',
+  StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_APPLICATION: {
     _type: 'veracode_account_has_application',
@@ -163,30 +147,10 @@ export const Relationships: Record<
     _class: RelationshipClass.HAS,
     targetType: Entities.APPLICATION._type,
   },
-  APPLICATION_IDENTIFIED_VULNERABILITY: {
-    _type: 'veracode_application_identified_vulnerability',
-    sourceType: Entities.APPLICATION._type,
-    _class: RelationshipClass.IDENTIFIED,
-    targetType: Entities.VULNERABILITY._type,
-  },
   APPLICATION_IDENTIFIED_FINDING: {
     _type: 'veracode_application_identified_finding',
     sourceType: Entities.APPLICATION._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.FINDING._type,
-  },
-  // mapped relationship
-  VULNERABILITY_EXPLOITS_CWE: {
-    _type: 'veracode_finding_exploits_cwe',
-    sourceType: Entities.VULNERABILITY._type,
-    _class: RelationshipClass.EXPLOITS,
-    targetType: Entities.CWE._type,
-    direction: RelationshipDirection.FORWARD,
-  },
-  FINDING_IS_VULNERABILITY: {
-    _type: 'veracode_finding_is_vulnerability',
-    sourceType: Entities.FINDING._type,
-    _class: RelationshipClass.IS,
-    targetType: Entities.VULNERABILITY._type,
   },
 };

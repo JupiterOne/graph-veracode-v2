@@ -16,6 +16,7 @@ const DEFAULT_API_SECRET = 'dummy-veracode-secret';
 export const integrationConfig: IntegrationConfig = {
   apiId: process.env.API_ID || DEFAULT_API_ID,
   apiSecret: process.env.API_SECRET || DEFAULT_API_SECRET,
+  targetApplication: 'US1492-1',
 };
 
 export function buildStepTestConfigForStep(stepId: string): StepTestConfig {

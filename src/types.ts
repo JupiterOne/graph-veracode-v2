@@ -20,28 +20,12 @@ export interface Application {
   scans: ApplicationScan[];
 }
 
-// Scans
-export enum Scans {
-  DYNAMIC,
-  MANUAL,
-  STATIC,
-}
-
 // Findings
 
-interface CWEReference {
-  name: string;
-  url: string;
-}
-
-export interface CWE {
-  description: string;
+interface CWE {
   id: number;
   name: string;
-  recommendation: string;
-  references: CWEReference[];
-  remediation_effort: number;
-  severity: number;
+  href: string;
 }
 
 interface Annotation {
@@ -65,6 +49,27 @@ interface FindingStatus {
   status: string;
 }
 
+interface FindingCategory {
+  id: number;
+  name: string;
+}
+
+// TODO: address variance in findingDetails based on scan type
+// https://app.swaggerhub.com/apis/Veracode/veracode-findings_api_specification/2.0#/Finding
+interface FindingDetails {
+  severity: number;
+  file_path: string;
+  file_name: string;
+  module: string;
+  relative_location: number;
+  procedure: string;
+  exploitability: number;
+  attack_vector: string;
+  file_line_number: number;
+  cwe: CWE;
+  finding_category: FindingCategory;
+}
+
 export interface Finding {
   annotations: Annotation[];
   build_id: number;
@@ -72,12 +77,18 @@ export interface Finding {
   context_type: string;
   count: number;
   description: string;
-  finding_details: CWE;
+  finding_details: FindingDetails;
   finding_status: FindingStatus;
   grace_period_expires_date: string;
   issue_id: number;
-  scan_type: Scans;
+  scan_type: string;
+  // not applicable for SCA
   violates_policy: boolean;
+}
+
+// TODO: add SCA scans, get test data for Dynamic and Manual before officially supporting
+export enum Scans {
+  STATIC,
 }
 
 // common Api Response types

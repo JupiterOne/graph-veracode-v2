@@ -2,16 +2,16 @@
 
 ## Veracode + JupiterOne Integration Benefits
 
-- Visualize Veracode scans, cwes, vulnerabilities, and findings in the
+- Visualize Veracode Application Scan Results, cwes, and findings in the
   JupiterOne graph.
 - Map Veracode findings to a code repo, project, or application in your
   JupiterOne account.
-- Monitor Veracode cwes, findings, and vulnerabilities within the alerts app.
-- Monitor changes to Veracode scans using JupiterOne alerts.
+- Monitor Veracode cwes and findings within the alerts app.
+- Monitor changes to Veracode Application Scans using JupiterOne alerts.
 
 ## How it Works
 
-- JupiterOne periodically fetches Veracode scans, cwes, vulerabilities, and
+- JupiterOne periodically fetches Veracode Application Scan Results, cwes, and
   findings to update the graph.
 - Write JupiterOne queries to review and monitor updates to the graph.
 - Configure alerts to reduce the noise of findings.
@@ -117,14 +117,24 @@ The following entities are created:
 | ----------- | ---------------------- | --------------- |
 | Account     | `veracode_account`     | `Account`       |
 | Application | `veracode_application` | `Application`   |
+| Finding     | `veracode_finding`     | `Finding`       |
 
 ### Relationships
 
 The following relationships are created:
 
-| Source Entity `_type` | Relationship `_class` | Target Entity `_type`  |
-| --------------------- | --------------------- | ---------------------- |
-| `veracode_account`    | **HAS**               | `veracode_application` |
+| Source Entity `_type`  | Relationship `_class` | Target Entity `_type`  |
+| ---------------------- | --------------------- | ---------------------- |
+| `veracode_account`     | **HAS**               | `veracode_application` |
+| `veracode_application` | **IDENTIFIED**        | `veracode_finding`     |
+
+### Mapped Relationships
+
+The following mapped relationships are created:
+
+| Source Entity `_type` | Relationship `_class` | Target Entity `_type` | Direction |
+| --------------------- | --------------------- | --------------------- | --------- |
+| `veracode_finding`    | **EXPLOITS**          | `*cwe*`               | FORWARD   |
 
 <!--
 ********************************************************************************

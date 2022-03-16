@@ -20,8 +20,9 @@ const HASH_ALGORITHM = 'sha256';
 const REQUEST_VERSION = 'vcode_request_version_1';
 const NONCE_SIZE = 16;
 
-const BASE_URI_V1 = 'https://api.veracode.com/appsec/v1/';
+export const BASE_URI_V1 = 'https://api.veracode.com/appsec/v1/';
 const BASE_URI_V2 = 'https://api.veracode.com/appsec/v2/';
+const FINDINGS_PAGE_SIZE = 500;
 
 // https://github.com/sindresorhus/got/blob/HEAD/documentation/7-retry.md#retry-api
 const gotRetryOptions: Partial<RequiredRetryOptions> = {
@@ -118,7 +119,7 @@ class VeracodeClient {
       const result = await applicationsRequest;
       response = JSON.parse(result.body);
       return {
-        items: response._embedded.applications,
+        items: response._embedded.applications as Application[],
         nextUri: response._links.next?.href,
       };
     } catch (err) {
@@ -140,9 +141,7 @@ class VeracodeClient {
     if (!uri) {
       uri =
         BASE_URI_V2 +
-        `applications/${applicationGuid}/findings?violates_policy=true`;
-    } else {
-      uri += '&violates_policy=true';
+        `applications/${applicationGuid}/findings?violates_policy=true&size=${FINDINGS_PAGE_SIZE}&scan_type=STATIC`;
     }
     const authHeader = this.calculateAuthorizationHeader(uri, 'GET');
     const findingsRequest = got.get(uri, {
@@ -155,17 +154,22 @@ class VeracodeClient {
     try {
       const result = await findingsRequest;
       response = JSON.parse(result.body);
-      return {
+      const toReturn = {
         items: response._embedded?.findings || [],
         nextUri: response._links.next?.href,
       };
+      if (toReturn.nextUri && toReturn.items.length !== FINDINGS_PAGE_SIZE) {
+        throw new Error(
+          'Veracode Findings Api did not serve full page despite having a nextUri, failing Findings ingestion to prevent unintended entity deletion',
+        );
+      }
+      return toReturn;
     } catch (err) {
-      console.error(err);
       throw new IntegrationProviderAPIError({
         cause: err,
         endpoint: uri,
-        status: err.response?.statusCode,
-        statusText: err.response?.statusMessage,
+        status: err.response?.statusCode || 500,
+        statusText: err.response?.statusMessage || 'Internal Server Error',
       });
     }
   }
