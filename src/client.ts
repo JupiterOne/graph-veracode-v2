@@ -62,20 +62,20 @@ class VeracodeClient {
   }
 
   private calculateAuthorizationHeader(urlString, httpMethod) {
-    const { apiId, apiSecret } = this.config;
+    const { veracodeApiId, veracodeApiSecret } = this.config;
     const url = new URL(urlString);
     const hostName = url.hostname;
     const veraURL = url.pathname + url.search;
-    const data = `id=${apiId}&host=${hostName}&url=${veraURL}&method=${httpMethod}`;
+    const data = `id=${veracodeApiId}&host=${hostName}&url=${veraURL}&method=${httpMethod}`;
     const dateStamp = this.currentDateStamp();
     const nonceBytes = this.newNonce(NONCE_SIZE);
     const dataSignature = this.calculateDataSignature(
-      apiSecret,
+      veracodeApiSecret,
       nonceBytes,
       dateStamp,
       data,
     );
-    const authorizationParam = `id=${apiId},ts=${dateStamp},nonce=${nonceBytes.toString(
+    const authorizationParam = `id=${veracodeApiId},ts=${dateStamp},nonce=${nonceBytes.toString(
       'hex',
     )},sig=${dataSignature.toString('hex')}`;
     return `${AUTH_SCHEME} ${authorizationParam}`;

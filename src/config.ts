@@ -13,19 +13,19 @@ import { createAPIClient } from './client';
  * When executing the integration in a development environment, these values may
  * be provided in a `.env` file with environment variables. For example:
  *
- * - `API_ID=123` becomes `instance.config.apiId = '123'`
- * - `API_SECRET=abc` becomes `instance.config.apiSecret = 'abc'`
+ * - `VERACODE_API_ID=123` becomes `instance.config.veracodeApiId = '123'`
+ * - `VERACODE_API_SECRET=abc` becomes `instance.config.veracodeApiSecret = 'abc'`
  *
  * Environment variables are NOT used when the integration is executing in a
  * managed environment. For example, in JupiterOne, users configure
  * `instance.config` in a UI.
  */
 export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
-  apiId: {
+  veracodeApiId: {
     type: 'string',
     mask: true,
   },
-  apiSecret: {
+  veracodeApiSecret: {
     type: 'string',
     mask: true,
   },
@@ -39,12 +39,12 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
   /**
    * The provider API client ID used to authenticate requests.
    */
-  apiId: string;
+  veracodeApiId: string;
 
   /**
    * The provider API client secret used to authenticate requests.
    */
-  apiSecret: string;
+  veracodeApiSecret: string;
 
   /**
    * For use in tests only. Avoid ingesting entire account's worth of applications to reduce PollyJS Recording size
@@ -57,9 +57,9 @@ export async function validateInvocation(
 ) {
   const { config } = context.instance;
 
-  if (!config.apiId || !config.apiSecret) {
+  if (!config.veracodeApiId || !config.veracodeApiSecret) {
     throw new IntegrationValidationError(
-      'Config requires all of {apiId, apiSecret}',
+      'Config requires all of {veracodeApiId, veracodeApiSecret}',
     );
   }
 

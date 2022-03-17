@@ -14,8 +14,8 @@ const DEFAULT_API_ID = 'dummy-veracode-id';
 const DEFAULT_API_SECRET = 'dummy-veracode-secret';
 
 export const integrationConfig: IntegrationConfig = {
-  apiId: process.env.API_ID || DEFAULT_API_ID,
-  apiSecret: process.env.API_SECRET || DEFAULT_API_SECRET,
+  veracodeApiId: process.env.VERACODE_API_ID || DEFAULT_API_ID,
+  veracodeApiSecret: process.env.VERACODE_API_SECRET || DEFAULT_API_SECRET,
   targetApplication: 'US1492-1',
 };
 

@@ -19,5 +19,5 @@ Copy the `.env.example` to `.env` file and fill in the variables using the user
 information and API token information generated from instructions above. The
 mapping is as follows:
 
-- API_ID=${`Api ID`}
-- API_SECRET=${`Api Secret Key`}
+- VERACODE_API_ID=${`Veracode Api ID`}
+- VERACODE_API_SECRET=${`Veracode Api Secret Key`}

@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- keep config params the same to avoid breaking existing integration
+  configurations
+
 [1.0.0] - 2022-03-16
 
 ### Fixed

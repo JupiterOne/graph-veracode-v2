@@ -21,7 +21,7 @@ describe('#validateInvocation', () => {
     });
 
     await expect(validateInvocation(executionContext)).rejects.toThrow(
-      'Config requires all of {apiId, apiSecret}',
+      'Config requires all of {veracodeApiId, veracodeApiSecret}',
     );
   });
 
@@ -54,7 +54,7 @@ describe('#validateInvocation', () => {
      * error messaging is expected and clear to end-users
      */
     describe('invalid user credentials', () => {
-      test('should throw if apiId is invalid', async () => {
+      test('should throw if veracodeApiId is invalid', async () => {
         recording = setupProjectRecording({
           directory: __dirname,
           name: 'api-id-auth-error',
@@ -67,8 +67,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            apiId: 'INVALID',
-            apiSecret: integrationConfig.apiSecret,
+            veracodeApiId: 'INVALID',
+            veracodeApiSecret: integrationConfig.veracodeApiSecret,
           },
         });
 
@@ -90,8 +90,8 @@ describe('#validateInvocation', () => {
 
         const executionContext = createMockExecutionContext({
           instanceConfig: {
-            apiId: integrationConfig.apiId,
-            apiSecret: 'INVALID',
+            veracodeApiId: integrationConfig.veracodeApiId,
+            veracodeApiSecret: 'INVALID',
           },
         });
 
