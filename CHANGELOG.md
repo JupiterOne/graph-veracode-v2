@@ -8,7 +8,18 @@ and this project adheres to
 
 ## [Unreleased]
 
+[2.0.0] - 2022-03-18
+
+- BREAKING: target `@jupiterone/graph-veracode` new major version to mark
+  deprecation of old project
+- add questions.yml
+
 [1.0.0] - 2022-03-16
+
+### NOTE
+
+- the following version was published under `@jupiterone/graph-veracode-v2`, all
+  new versions will be on `@jupiterone/graph-veracode`
 
 ### Fixed
 
