@@ -1,15 +1,37 @@
 ---
-sourceId: managed:template
+sourceId: managed:veracode
 integrationDefinitionId: '${integration_definition_id}'
 questions:
-  - id: integration-question-template-replace-me
-    title: What kinds of questions will this integration support?
+  - id: managed-question-veracode-open-finding-report
+    title:
+      What veracode applications have unmitigated findings with Very High
+      severity?
     description:
-      TODO Every integration should contribute questions! Please be carefule
-      to replace this before deploying the integration to JupiterOne.
+      Returns pertinent information about Veracode Applications, Findings, and
+      Weaknesses in which the Finding is "open" and has the highest severity
+      rating.
     queries:
       - name: good
         query: |
-          find * with _integrationDefinitionId = '${integration_definition_id}'
+          FIND veracode_application AS app 
+          THAT IDENTIFIED veracode_finding 
+            WITH numericSeverity = 5
+            AND open = true
+            AS finding
+          THAT EXPLOITS Weakness AS weakness
+          RETURN 
+            app.name,
+            app.lastCompletedScanDate, 
+            finding.name, 
+            finding.exploitability,
+            finding.description, 
+            finding.resolutionStatus, 
+            finding.fileName,
+            finding.fileLineNumber, 
+            weakness.name, 
+            weakness.references
     tags:
-      - template
+      - veracode
+      - threat
+      - compliance
+      - vuln-mgmt
