@@ -1,6 +1,6 @@
 {
-  "name": "@jupiterone/graph-veracode-v2",
-  "version": "1.0.0",
+  "name": "@jupiterone/graph-veracode",
+  "version": "2.0.0",
   "description": "JupiterOne Veracode Integration",
   "license": "MPL-2.0",
   "main": "src/index.js",
