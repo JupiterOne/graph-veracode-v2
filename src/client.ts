@@ -119,8 +119,8 @@ class VeracodeClient {
       const result = await applicationsRequest;
       response = JSON.parse(result.body);
       return {
-        items: response._embedded.applications as Application[],
-        nextUri: response._links.next?.href,
+        items: response._embedded?.applications || ([] as Application[]),
+        nextUri: response._links?.next?.href,
       };
     } catch (err) {
       throw new IntegrationProviderAPIError({
