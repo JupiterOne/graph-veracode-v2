@@ -26,10 +26,8 @@ const staticScanExploitabilityMap = {
   '2': 'Very Likely',
 };
 
-export function createFindingEntity(
-  veracodeFinding: Finding,
-  applicationName: String,
-): Entity {
+export function createFindingEntity(veracodeFinding: Finding): Entity {
+  const name = `cwe-${veracodeFinding.finding_details.cwe.id}: ${veracodeFinding.finding_details.file_name} (Line: ${veracodeFinding.finding_details.file_line_number})`;
   return createIntegrationEntity({
     entityData: {
       source: {},
@@ -37,8 +35,9 @@ export function createFindingEntity(
         _type: Entities.FINDING._type,
         _class: Entities.FINDING._class,
         _key: `${veracodeFinding.context_guid}_${veracodeFinding.issue_id}`,
-        name: `${applicationName}-${veracodeFinding.issue_id}`,
-        displayName: `${applicationName}-${veracodeFinding.issue_id}`,
+        name,
+        displayName: name,
+        cwe: `cwe-${veracodeFinding.finding_details.cwe.id}`,
         description: veracodeFinding.description,
         count: veracodeFinding.count,
         scanType: veracodeFinding.scan_type,

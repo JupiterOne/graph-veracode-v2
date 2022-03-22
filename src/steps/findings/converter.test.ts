@@ -48,13 +48,14 @@ describe('#createFindingEntity', () => {
       violates_policy: true,
     };
 
-    const entity = createFindingEntity(finding, 'myApp');
+    const entity = createFindingEntity(finding);
     expect(entity).toEqual(
       expect.objectContaining({
         _key: '1_4',
         _type: Entities.FINDING._type,
         _class: Entities.FINDING._class,
-        displayName: 'myApp-4',
+        displayName: 'cwe-80: bar.ts (Line: 154)',
+        cwe: 'cwe-80',
         description: finding.description,
         count: finding.count,
         scanType: finding.scan_type,
