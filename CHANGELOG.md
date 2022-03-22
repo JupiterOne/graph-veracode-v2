@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+[2.0.1] - 2022-03-22
+
 - handle veracode accounts with no applications
 
 [2.0.0] - 2022-03-18
