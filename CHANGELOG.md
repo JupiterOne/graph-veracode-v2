@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+- handle veracode accounts with no applications
+
 [2.0.0] - 2022-03-18
 
 - BREAKING: target `@jupiterone/graph-veracode` new major version to mark
