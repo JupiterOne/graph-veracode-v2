@@ -93,6 +93,7 @@ export const Entities: Record<
         _key: { type: 'string' },
         name: { type: 'string' },
         displayName: { type: 'string' },
+        cwe: { type: 'string' },
         description: { type: 'string' },
         count: { type: 'number' },
         scanType: { enum: Object.keys(Scans) },

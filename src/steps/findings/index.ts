@@ -36,10 +36,7 @@ export async function fetchFindings({
         );
         findingNextUri = nextUri;
         for (const finding of items) {
-          const findingEntity = createFindingEntity(
-            finding,
-            applicationEntity.displayName!,
-          );
+          const findingEntity = createFindingEntity(finding);
           await jobState.addEntity(findingEntity);
           await jobState.addRelationship(
             createDirectRelationship({
