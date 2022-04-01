@@ -8,6 +8,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+[2.1.0] - 2022-04-01
+
+- add cwe property to `veracode_finding` entity
+- change displayName of `veracode_finding` entity
+
 [2.0.1] - 2022-03-22
 
 - handle veracode accounts with no applications
