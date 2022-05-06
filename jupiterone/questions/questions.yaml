@@ -4,24 +4,24 @@ integrationDefinitionId: '${integration_definition_id}'
 questions:
   - id: managed-question-veracode-open-finding-report
     title:
-      What veracode applications have unmitigated findings with Very High
+      What veracode assessments have unmitigated findings with Very High
       severity?
     description:
-      Returns pertinent information about Veracode Applications, Findings, and
+      Returns pertinent information about Veracode Assessments, Findings, and
       Weaknesses in which the Finding is "open" and has the highest severity
       rating.
     queries:
       - name: good
         query: |
-          FIND veracode_application AS app 
+          FIND veracode_assessment AS assessment 
           THAT IDENTIFIED veracode_finding 
             WITH numericSeverity = 5
             AND open = true
             AS finding
           THAT EXPLOITS Weakness AS weakness
           RETURN 
-            app.name,
-            app.lastCompletedScanDate, 
+            assessment.name,
+            assessment.lastCompletedScanDate, 
             finding.name, 
             finding.exploitability,
             finding.description, 

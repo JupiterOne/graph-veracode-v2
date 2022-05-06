@@ -25,13 +25,13 @@ export async function fetchFindings({
   const veracodeClient = createAPIClient(instance.config, logger);
   let totalFindingsProcessed = 0;
   await jobState.iterateEntities(
-    { _type: Entities.APPLICATION._type },
-    async (applicationEntity) => {
+    { _type: Entities.ASSESSMENT._type },
+    async (assessmentEntity) => {
       let findingNextUri;
-      let findingsFoundForApp = 0;
+      let findingsFoundForAssessment = 0;
       do {
         const { nextUri, items } = await veracodeClient.getFindingsBatch(
-          applicationEntity._key,
+          assessmentEntity._key,
           findingNextUri,
         );
         findingNextUri = nextUri;
@@ -40,7 +40,7 @@ export async function fetchFindings({
           await jobState.addEntity(findingEntity);
           await jobState.addRelationship(
             createDirectRelationship({
-              from: applicationEntity,
+              from: assessmentEntity,
               _class: RelationshipClass.IDENTIFIED,
               to: findingEntity,
             }),
@@ -67,13 +67,13 @@ export async function fetchFindings({
               skipTargetCreation: false,
             }),
           );
-          ++findingsFoundForApp;
+          ++findingsFoundForAssessment;
         }
       } while (findingNextUri);
       logger.info(
-        `${findingsFoundForApp} findings for application ${applicationEntity.displayName}`,
+        `${findingsFoundForAssessment} findings for assessment ${assessmentEntity.displayName}`,
       );
-      totalFindingsProcessed += findingsFoundForApp;
+      totalFindingsProcessed += findingsFoundForAssessment;
     },
   );
   logger.info(`${totalFindingsProcessed} findings found in total`);
@@ -84,9 +84,9 @@ export const findingSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.FINDINGS,
     name: 'Fetch Findings',
     entities: [Entities.FINDING],
-    relationships: [Relationships.APPLICATION_IDENTIFIED_FINDING],
+    relationships: [Relationships.ASSESSMENT_IDENTIFIED_FINDING],
     mappedRelationships: [MappedRelationships.FINDING_EXPLOITS_CWE],
-    dependsOn: [Steps.APPLICATIONS],
+    dependsOn: [Steps.ASSESSMENTS],
     executionHandler: fetchFindings,
   },
 ];

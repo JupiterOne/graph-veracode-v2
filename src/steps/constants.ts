@@ -10,11 +10,11 @@ import { Scans } from '../types';
 export const Steps = {
   ACCOUNT: 'fetch-account',
   FINDINGS: 'fetch-findings',
-  APPLICATIONS: 'fetch-applications',
+  ASSESSMENTS: 'fetch-assessments',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'CWE' | 'APPLICATION' | 'FINDING',
+  'ACCOUNT' | 'CWE' | 'ASSESSMENT' | 'FINDING',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -40,14 +40,14 @@ export const Entities: Record<
       required: [],
     },
   },
-  APPLICATION: {
-    resourceName: 'Application',
-    _type: 'veracode_application',
-    _class: ['Application'],
+  ASSESSMENT: {
+    resourceName: 'Assessment',
+    _type: 'veracode_assessment',
+    _class: ['Assessment'],
     schema: {
       additionalProperties: true,
       properties: {
-        _type: { const: 'veracode_application' },
+        _type: { const: 'veracode_assessment' },
         _key: { type: 'string' },
         displayName: { type: 'string' },
         name: { type: 'string' },
@@ -56,6 +56,8 @@ export const Entities: Record<
         createdBy: { type: 'string' },
         updatedOn: { type: 'number' },
         updatedBy: { type: 'string' },
+        category: { type: 'string' },
+        summary: { type: 'string' },
         _rawData: {
           type: 'array',
           items: { type: 'object' },
@@ -139,18 +141,18 @@ export const MappedRelationships: Record<
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_APPLICATION' | 'APPLICATION_IDENTIFIED_FINDING',
+  'ACCOUNT_HAS_ASSESSMENT' | 'ASSESSMENT_IDENTIFIED_FINDING',
   StepRelationshipMetadata
 > = {
-  ACCOUNT_HAS_APPLICATION: {
-    _type: 'veracode_account_has_application',
+  ACCOUNT_HAS_ASSESSMENT: {
+    _type: 'veracode_account_has_assessment',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.APPLICATION._type,
+    targetType: Entities.ASSESSMENT._type,
   },
-  APPLICATION_IDENTIFIED_FINDING: {
-    _type: 'veracode_application_identified_finding',
-    sourceType: Entities.APPLICATION._type,
+  ASSESSMENT_IDENTIFIED_FINDING: {
+    _type: 'veracode_assessment_identified_finding',
+    sourceType: Entities.ASSESSMENT._type,
     _class: RelationshipClass.IDENTIFIED,
     targetType: Entities.FINDING._type,
   },
