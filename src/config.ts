@@ -49,7 +49,7 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
   /**
    * For use in tests only. Avoid ingesting entire account's worth of applications to reduce PollyJS Recording size
    */
-  targetApplication?: string;
+  targetVeracodeApplication?: string;
 }
 
 export async function validateInvocation(

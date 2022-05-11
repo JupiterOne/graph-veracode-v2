@@ -1,4 +1,4 @@
-// Applications
+// Assessments (derived by hitting the Applications endpoint for veracode api)
 interface ApplicationProfile {
   name: string;
 }

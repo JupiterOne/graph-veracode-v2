@@ -41,14 +41,14 @@ describe('findingSteps', () => {
       const result = await executeStepWithDependencies(stepConfig);
       expect(result.collectedRelationships.length).toBe(24);
       const accountFindingRelationships = result.collectedRelationships.filter(
-        (r) => r._type === Relationships.APPLICATION_IDENTIFIED_FINDING._type,
+        (r) => r._type === Relationships.ASSESSMENT_IDENTIFIED_FINDING._type,
       );
       expect(accountFindingRelationships).toMatchDirectRelationshipSchema({
         schema: {
           properties: {
             _class: { const: RelationshipClass.IDENTIFIED },
             _type: {
-              const: Relationships.APPLICATION_IDENTIFIED_FINDING._type,
+              const: Relationships.ASSESSMENT_IDENTIFIED_FINDING._type,
             },
           },
         },

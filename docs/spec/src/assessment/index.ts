@@ -1,27 +1,27 @@
 import { RelationshipClass, StepSpec } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../../../src/config';
 
-export const applicationSpec: StepSpec<IntegrationConfig>[] = [
+export const assessmentSpec: StepSpec<IntegrationConfig>[] = [
   {
     /**
      * ENDPOINT: n/a
      * PATTERN: Singleton
      */
-    id: 'fetch-applications',
-    name: 'Fetch Applications',
+    id: 'fetch-assessments',
+    name: 'Fetch Assessments',
     entities: [
       {
-        resourceName: 'Application',
-        _type: 'veracode_application',
-        _class: ['Application'],
+        resourceName: 'Assessment',
+        _type: 'veracode_assessment',
+        _class: ['Assessment'],
       },
     ],
     relationships: [
       {
-        _type: 'veracode_account_has_application',
+        _type: 'veracode_account_has_assessment',
         sourceType: 'veracode_account',
         _class: RelationshipClass.HAS,
-        targetType: 'veracode_application',
+        targetType: 'veracode_assessment',
       },
     ],
     dependsOn: ['fetch-account'],

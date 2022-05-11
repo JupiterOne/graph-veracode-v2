@@ -10,9 +10,9 @@ import { BASE_URI_V1, createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
 import { ACCOUNT_ENTITY_KEY } from '../account';
 import { Entities, Relationships, Steps } from '../constants';
-import { createApplicationEntity } from './converter';
+import { createAssessmentEntity } from './converter';
 
-export async function fetchApplications({
+export async function fetchAssessments({
   instance,
   jobState,
   logger,
@@ -23,38 +23,40 @@ export async function fetchApplications({
   const accountEntity = (await jobState.findEntity(accountEntityKey)) as Entity;
   const veracodeClient = createAPIClient(instance.config, logger);
   let nextApplicationUri;
-  if (instance.config.targetApplication) {
+  if (instance.config.targetVeracodeApplication) {
     // only possible using test config
     nextApplicationUri =
-      BASE_URI_V1 + 'applications?name=' + instance.config.targetApplication;
+      BASE_URI_V1 +
+      'applications?name=' +
+      instance.config.targetVeracodeApplication;
   }
   do {
     const { nextUri, items } = await veracodeClient.getApplicationBatch(
       nextApplicationUri,
     );
     nextApplicationUri = nextUri;
-    const applicationEntities = items.map((application) =>
-      createApplicationEntity(application),
+    const assessmentEntities = items.map((application) =>
+      createAssessmentEntity(application),
     );
-    await jobState.addEntities(applicationEntities);
-    const relationships = applicationEntities.map((applicationEntity) => {
+    await jobState.addEntities(assessmentEntities);
+    const relationships = assessmentEntities.map((assessmentEntity) => {
       return createDirectRelationship({
         _class: RelationshipClass.HAS,
         from: accountEntity,
-        to: applicationEntity,
+        to: assessmentEntity,
       });
     });
     await jobState.addRelationships(relationships);
   } while (nextApplicationUri);
 }
 
-export const applicationSteps: IntegrationStep<IntegrationConfig>[] = [
+export const assessmentSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: Steps.APPLICATIONS,
-    name: 'Fetch Applications',
-    entities: [Entities.APPLICATION],
-    relationships: [Relationships.ACCOUNT_HAS_APPLICATION],
+    id: Steps.ASSESSMENTS,
+    name: 'Fetch Assessments',
+    entities: [Entities.ASSESSMENT],
+    relationships: [Relationships.ACCOUNT_HAS_ASSESSMENT],
     dependsOn: [Steps.ACCOUNT],
-    executionHandler: fetchApplications,
+    executionHandler: fetchAssessments,
   },
 ];

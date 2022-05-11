@@ -31,13 +31,13 @@ export const findingsSpec: StepSpec<IntegrationConfig>[] = [
     ],
     relationships: [
       {
-        _type: 'veracode_application_identified_finding',
-        sourceType: 'veracode_application',
+        _type: 'veracode_assessment_identified_finding',
+        sourceType: 'veracode_assessment',
         _class: RelationshipClass.IDENTIFIED,
         targetType: 'veracode_finding',
       },
     ],
-    dependsOn: ['fetch-applications'],
+    dependsOn: ['fetch-assessments'],
     implemented: true,
   },
 ];
