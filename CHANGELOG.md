@@ -8,12 +8,27 @@ and this project adheres to
 
 ## [Unreleased]
 
+[3.0.0] - 2022-05-11
+
+### Changed
+
+- BREAKING: change `veracode_application` to `veracode_assessment`
+- change class of said entity from `Application` to `Assessment`
+- update packaged question
+
 [2.1.0] - 2022-04-01
 
+### Added
+
 - add cwe property to `veracode_finding` entity
+
+### Changed
+
 - change displayName of `veracode_finding` entity
 
 [2.0.1] - 2022-03-22
+
+### Fixed
 
 - handle veracode accounts with no applications
 
