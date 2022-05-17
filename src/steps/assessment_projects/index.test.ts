@@ -11,17 +11,17 @@ describe('assessmentSteps', () => {
   afterEach(async () => {
     await recording.stop();
   });
-  describe('#fetchAssessments', () => {
-    test('creates assessment entities', async () => {
+  describe('#fetchAssessmentsAndProjects', () => {
+    test('creates assessment and project entities', async () => {
       recording = setupProjectRecording({
         directory: __dirname,
         name: 'fetchAssessmentsShouldCollectData',
       });
 
-      const stepConfig = buildStepTestConfigForStep(Steps.ASSESSMENTS);
+      const stepConfig = buildStepTestConfigForStep(Steps.ASSESSMENTS_PROJECTS);
       const stepResult = await executeStepWithDependencies(stepConfig);
-      expect(stepResult.collectedEntities.length).toBe(1);
-      expect(stepResult.collectedRelationships.length).toBe(1);
+      expect(stepResult.collectedEntities.length).toBe(2);
+      expect(stepResult.collectedRelationships.length).toBe(2);
       expect(stepResult).toMatchStepMetadata(stepConfig);
     });
   });

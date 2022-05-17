@@ -120,6 +120,7 @@ The following entities are created:
 | Account    | `veracode_account`    | `Account`       |
 | Assessment | `veracode_assessment` | `Assessment`    |
 | Finding    | `veracode_finding`    | `Finding`       |
+| Project    | `veracode_project`    | `Project`       |
 
 ### Relationships
 
@@ -127,8 +128,10 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `veracode_account`    | **HAS**               | `veracode_assessment` |
+| `veracode_account`    | **HAS**               | `veracode_project`    |
 | `veracode_assessment` | **IDENTIFIED**        | `veracode_finding`    |
+| `veracode_project`    | **HAS**               | `veracode_assessment` |
+| `veracode_project`    | **HAS**               | `veracode_finding`    |
 
 ### Mapped Relationships
 
