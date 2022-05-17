@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+[4.0.0] - 2022-05-17
+
+### Added
+
+- `veracode_project` entity
+
+### Changed
+
+- BREAKING: `veracode_account` no longer `HAS` `veracode_assessment`
+- instead `veracode_account HAS veracode_project` and
+  `veracode_project HAS veracode_assessment`
+- raw data previously housed in `veracode_assessment` now lives in
+  `veracode_project` instead
+
 [3.0.0] - 2022-05-11
 
 ### Changed
