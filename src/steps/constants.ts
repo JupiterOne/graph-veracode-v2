@@ -10,11 +10,11 @@ import { Scans } from '../types';
 export const Steps = {
   ACCOUNT: 'fetch-account',
   FINDINGS: 'fetch-findings',
-  ASSESSMENTS: 'fetch-assessments',
+  ASSESSMENTS_PROJECTS: 'fetch-assessments-and-projects',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'CWE' | 'ASSESSMENT' | 'FINDING',
+  'ACCOUNT' | 'CWE' | 'ASSESSMENT' | 'FINDING' | 'PROJECT',
   StepEntityMetadata
 > = {
   ACCOUNT: {
@@ -52,16 +52,13 @@ export const Entities: Record<
         displayName: { type: 'string' },
         name: { type: 'string' },
         lastCompletedScanDate: { type: 'number' },
+        applicationGuid: { type: 'string' },
         createdOn: { type: 'number' },
         createdBy: { type: 'string' },
         updatedOn: { type: 'number' },
         updatedBy: { type: 'string' },
         category: { type: 'string' },
         summary: { type: 'string' },
-        _rawData: {
-          type: 'array',
-          items: { type: 'object' },
-        },
       },
       required: [],
     },
@@ -125,6 +122,31 @@ export const Entities: Record<
       required: [],
     },
   },
+  PROJECT: {
+    resourceName: 'Project',
+    _type: 'veracode_project',
+    _class: ['Project'],
+    schema: {
+      additionalProperties: true,
+      properties: {
+        _type: { const: 'veracode_project' },
+        _key: { type: 'string' },
+        displayName: { type: 'string' },
+        name: { type: 'string' },
+        lastCompletedScanDate: { type: 'number' },
+        applicationGuid: { type: 'string' },
+        createdOn: { type: 'number' },
+        createdBy: { type: 'string' },
+        updatedOn: { type: 'number' },
+        updatedBy: { type: 'string' },
+        _rawData: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+      },
+      required: [],
+    },
+  },
 };
 
 export const MappedRelationships: Record<
@@ -141,19 +163,34 @@ export const MappedRelationships: Record<
 };
 
 export const Relationships: Record<
-  'ACCOUNT_HAS_ASSESSMENT' | 'ASSESSMENT_IDENTIFIED_FINDING',
+  | 'ACCOUNT_HAS_PROJECT'
+  | 'ASSESSMENT_IDENTIFIED_FINDING'
+  | 'PROJECT_HAS_ASSESSMENT'
+  | 'PROJECT_HAS_FINDING',
   StepRelationshipMetadata
 > = {
-  ACCOUNT_HAS_ASSESSMENT: {
-    _type: 'veracode_account_has_assessment',
+  ACCOUNT_HAS_PROJECT: {
+    _type: 'veracode_account_has_project',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
-    targetType: Entities.ASSESSMENT._type,
+    targetType: Entities.PROJECT._type,
   },
   ASSESSMENT_IDENTIFIED_FINDING: {
     _type: 'veracode_assessment_identified_finding',
     sourceType: Entities.ASSESSMENT._type,
     _class: RelationshipClass.IDENTIFIED,
+    targetType: Entities.FINDING._type,
+  },
+  PROJECT_HAS_ASSESSMENT: {
+    _type: 'veracode_project_has_assessment',
+    sourceType: Entities.PROJECT._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.ASSESSMENT._type,
+  },
+  PROJECT_HAS_FINDING: {
+    _type: 'veracode_project_has_finding',
+    sourceType: Entities.PROJECT._type,
+    _class: RelationshipClass.HAS,
     targetType: Entities.FINDING._type,
   },
 };

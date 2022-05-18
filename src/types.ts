@@ -1,4 +1,4 @@
-// Assessments (derived by hitting the Applications endpoint for veracode api)
+// Assessments & Projects (derived by hitting the Applications endpoint for veracode api)
 interface ApplicationProfile {
   name: string;
 }
@@ -10,6 +10,8 @@ interface ApplicationScan {
   scan_url: string;
 }
 
+// Application from veracode api.
+// This is used to derive a Project and Assessment Enitity in our data model.
 export interface Application {
   guid: string;
   profile: ApplicationProfile;

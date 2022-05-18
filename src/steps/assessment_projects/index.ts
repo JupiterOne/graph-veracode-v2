@@ -3,6 +3,7 @@ import {
   Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
+  Relationship,
   RelationshipClass,
 } from '@jupiterone/integration-sdk-core';
 import { BASE_URI_V1, createAPIClient } from '../../client';
@@ -10,9 +11,9 @@ import { BASE_URI_V1, createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
 import { ACCOUNT_ENTITY_KEY } from '../account';
 import { Entities, Relationships, Steps } from '../constants';
-import { createAssessmentEntity } from './converter';
+import { createAssessmentEntity, createProjectEntity } from './converter';
 
-export async function fetchAssessments({
+export async function fetchAssessmentsAndProjects({
   instance,
   jobState,
   logger,
@@ -35,28 +36,45 @@ export async function fetchAssessments({
       nextApplicationUri,
     );
     nextApplicationUri = nextUri;
-    const assessmentEntities = items.map((application) =>
-      createAssessmentEntity(application),
-    );
-    await jobState.addEntities(assessmentEntities);
-    const relationships = assessmentEntities.map((assessmentEntity) => {
-      return createDirectRelationship({
-        _class: RelationshipClass.HAS,
-        from: accountEntity,
-        to: assessmentEntity,
-      });
+    const assessmentEntities: Entity[] = [];
+    const projectEntities: Entity[] = [];
+    const relationships: Relationship[] = [];
+    items.forEach((application) => {
+      const assessment = createAssessmentEntity(application);
+      const project = createProjectEntity(application);
+      assessmentEntities.push(assessment);
+      projectEntities.push(project);
+      relationships.push(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: accountEntity,
+          to: project,
+        }),
+      );
+      relationships.push(
+        createDirectRelationship({
+          _class: RelationshipClass.HAS,
+          from: project,
+          to: assessment,
+        }),
+      );
     });
+    await jobState.addEntities(assessmentEntities);
+    await jobState.addEntities(projectEntities);
     await jobState.addRelationships(relationships);
   } while (nextApplicationUri);
 }
 
 export const assessmentSteps: IntegrationStep<IntegrationConfig>[] = [
   {
-    id: Steps.ASSESSMENTS,
-    name: 'Fetch Assessments',
-    entities: [Entities.ASSESSMENT],
-    relationships: [Relationships.ACCOUNT_HAS_ASSESSMENT],
+    id: Steps.ASSESSMENTS_PROJECTS,
+    name: 'Fetch Assessments and Projects',
+    entities: [Entities.ASSESSMENT, Entities.PROJECT],
+    relationships: [
+      Relationships.ACCOUNT_HAS_PROJECT,
+      Relationships.PROJECT_HAS_ASSESSMENT,
+    ],
     dependsOn: [Steps.ACCOUNT],
-    executionHandler: fetchAssessments,
+    executionHandler: fetchAssessmentsAndProjects,
   },
 ];

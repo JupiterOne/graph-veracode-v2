@@ -1,6 +1,7 @@
 import {
   createDirectRelationship,
   createMappedRelationship,
+  IntegrationMissingKeyError,
   IntegrationStep,
   IntegrationStepExecutionContext,
   RelationshipClass,
@@ -29,9 +30,19 @@ export async function fetchFindings({
     async (assessmentEntity) => {
       let findingNextUri;
       let findingsFoundForAssessment = 0;
+      const applicationKey = assessmentEntity._key.replace('assessment_', '');
+      const correspondingProject = await jobState.findEntity(
+        `project_${applicationKey}`,
+      );
+      if (!correspondingProject) {
+        throw new IntegrationMissingKeyError(
+          'did not find a corresponding project for the assessment with _key ' +
+            assessmentEntity._key,
+        );
+      }
       do {
         const { nextUri, items } = await veracodeClient.getFindingsBatch(
-          assessmentEntity._key,
+          applicationKey,
           findingNextUri,
         );
         findingNextUri = nextUri;
@@ -42,6 +53,13 @@ export async function fetchFindings({
             createDirectRelationship({
               from: assessmentEntity,
               _class: RelationshipClass.IDENTIFIED,
+              to: findingEntity,
+            }),
+          );
+          await jobState.addRelationship(
+            createDirectRelationship({
+              from: correspondingProject,
+              _class: RelationshipClass.HAS,
               to: findingEntity,
             }),
           );
@@ -84,9 +102,12 @@ export const findingSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.FINDINGS,
     name: 'Fetch Findings',
     entities: [Entities.FINDING],
-    relationships: [Relationships.ASSESSMENT_IDENTIFIED_FINDING],
+    relationships: [
+      Relationships.ASSESSMENT_IDENTIFIED_FINDING,
+      Relationships.PROJECT_HAS_FINDING,
+    ],
     mappedRelationships: [MappedRelationships.FINDING_EXPLOITS_CWE],
-    dependsOn: [Steps.ASSESSMENTS],
+    dependsOn: [Steps.ASSESSMENTS_PROJECTS],
     executionHandler: fetchFindings,
   },
 ];

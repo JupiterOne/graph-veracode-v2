@@ -36,8 +36,14 @@ export const findingsSpec: StepSpec<IntegrationConfig>[] = [
         _class: RelationshipClass.IDENTIFIED,
         targetType: 'veracode_finding',
       },
+      {
+        _type: 'veracode_project_has_finding',
+        sourceType: 'veracode_project',
+        _class: RelationshipClass.HAS,
+        targetType: 'veracode_finding',
+      },
     ],
-    dependsOn: ['fetch-assessments'],
+    dependsOn: ['fetch-assessments-and-projects'],
     implemented: true,
   },
 ];

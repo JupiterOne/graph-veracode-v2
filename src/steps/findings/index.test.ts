@@ -39,11 +39,13 @@ describe('findingSteps', () => {
 
       const stepConfig = buildStepTestConfigForStep(Steps.FINDINGS);
       const result = await executeStepWithDependencies(stepConfig);
-      expect(result.collectedRelationships.length).toBe(24);
-      const accountFindingRelationships = result.collectedRelationships.filter(
-        (r) => r._type === Relationships.ASSESSMENT_IDENTIFIED_FINDING._type,
-      );
-      expect(accountFindingRelationships).toMatchDirectRelationshipSchema({
+      expect(result.collectedRelationships.length).toBe(36);
+
+      const assessmentFindingRelationships =
+        result.collectedRelationships.filter(
+          (r) => r._type === Relationships.ASSESSMENT_IDENTIFIED_FINDING._type,
+        );
+      expect(assessmentFindingRelationships).toMatchDirectRelationshipSchema({
         schema: {
           properties: {
             _class: { const: RelationshipClass.IDENTIFIED },
@@ -53,7 +55,22 @@ describe('findingSteps', () => {
           },
         },
       });
-      expect(accountFindingRelationships.length).toBe(12);
+      expect(assessmentFindingRelationships.length).toBe(12);
+
+      const projectFindingRelationships = result.collectedRelationships.filter(
+        (r) => r._type === Relationships.PROJECT_HAS_FINDING._type,
+      );
+      expect(projectFindingRelationships).toMatchDirectRelationshipSchema({
+        schema: {
+          properties: {
+            _class: { const: RelationshipClass.HAS },
+            _type: {
+              const: Relationships.PROJECT_HAS_FINDING._type,
+            },
+          },
+        },
+      });
+      expect(projectFindingRelationships.length).toBe(12);
 
       const findingCWERelationships = (
         result.collectedRelationships as MappedRelationship[]
