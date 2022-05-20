@@ -35,3 +35,82 @@ questions:
       - threat
       - compliance
       - vuln-mgmt
+  - id: managed-question-veracode-what-veracode-findings-are-open
+    title:
+      What Veracode findings are open?
+    description: >-
+      View what findings are open across your Veracode applications 
+      by CWE category and severity. Identify which vulnerabilities 
+      are causing the largest amount of open flaws to help with remediation planning.
+    queries:
+      - name: Open Findings by CWE Category
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_finding WITH open=true AS f 
+          RETURN 
+            f.findingCategoryName AS 'Finding Category', 
+            count(f) AS 'Findings'
+      - name: Open Findings by Severity
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_finding WITH open=true AS f 
+          RETURN 
+            f.severity AS 'Severity Level', 
+            count(f) AS 'Findings'
+    tags:
+      - veracode
+      - vuln-mgmt
+  - id: managed-question-veracode-what-veracode-findings-are-impacting-the-most-applications
+    title:
+      What Veracode findings are impacting the most applications?
+    description: >-
+      View how many applications are impacted by a specific flaw type. 
+      Viewing flaw prevalence and what is contributing the most to your risk posture 
+      can help identify areas of focus for developers prioritize when vetting scan results. 
+    queries:
+      - name: Applications with Open Findings by CWE Category
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_project AS p 
+            THAT HAS veracode_finding WITH open=true AS f
+          RETURN 
+            f.findingCategoryName AS 'Finding Category', 
+            count(p) AS 'Applications Impacted'
+    tags:
+      - veracode
+      - vuln-mgmt
+  - id: managed-question-veracode-what-applications-have-had-a-veracode-scan
+    title:
+      What applications have had a Veracode scan?
+    description: >-
+      See how many applications/projects have been scanned in Veracode.
+    queries:
+      - name: Applications Scanned
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_project WITH lastCompletedScanDate!=undefined
+    tags:
+      - veracode
+      - vuln-mgmt
+  - id: managed-question-veracode-what-second-party-code-do-i-have-across-my-veracode-applications
+    title:
+      What second party code do I have across my Veracode applications?
+    description: >-
+      Veracode defines second party across microservices if a vulnerability 
+      has the same CWE, line number, and filename spread across several profiles.  
+      See where multiple applications are using the same 
+      'shared library' or component with the query below. 
+    queries:
+      - name: Open Second Party Code
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_project AS p 
+            THAT HAS veracode_finding WITH open=true AS f
+          RETURN 
+            f.displayName as "CWE: Filename and Line Number", 
+            count(p) as Applications
+          ORDER BY Applications DESC
+
+    tags:
+      - veracode
+      - vuln-mgmt
