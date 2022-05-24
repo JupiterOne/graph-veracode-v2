@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+[4.0.1] - 2022-05-24
+
+### Added
+
+- managed question
+
 [4.0.0] - 2022-05-18
 
 ### Added
