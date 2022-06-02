@@ -114,3 +114,20 @@ questions:
     tags:
       - veracode
       - vuln-mgmt
+
+  - id: managed-question-veracode-what-veracode-findings-are-not-resolved
+    title:
+      What Veracode findings are not resolved?
+    description: >-
+      View exploits that are not resolved across your Veracode applications 
+      with very high severity. 
+    queries:
+      - name: Unresolved exploits with very high severity.
+        resultsAre: INFORMATIVE
+        query: |
+          FIND veracode_finding with severity ~= "Very High" AND exploitabilityDescription ~= "Likely" AS s 
+          RETURN 
+            s.displayName,s.filePath,s.description,s.resolution
+    tags:
+      - veracode
+      - vuln-mgmt    
