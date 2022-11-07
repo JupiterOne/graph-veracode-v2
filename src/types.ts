@@ -90,7 +90,10 @@ export interface Finding {
 
 // TODO: add SCA scans, get test data for Dynamic and Manual before officially supporting
 export enum Scans {
-  STATIC,
+  STATIC = 'STATIC',
+  DYNAMIC = 'DYNAMIC',
+  SCA = 'SCA',
+  // MANUAL = 'MANUAL',
 }
 
 // common Api Response types
