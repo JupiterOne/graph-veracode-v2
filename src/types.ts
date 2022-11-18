@@ -88,7 +88,7 @@ export interface Finding {
   violates_policy: boolean;
 }
 
-// TODO: add SCA scans, get test data for Dynamic and Manual before officially supporting
+// TODO: get test data for Manual before officially supporting
 export enum Scans {
   STATIC = 'STATIC',
   DYNAMIC = 'DYNAMIC',
