@@ -13,6 +13,7 @@ import {
   ApplicationApiResponse,
   FindingsApiResponse,
   Finding,
+  Scans,
 } from './types';
 
 const AUTH_SCHEME = 'VERACODE-HMAC-SHA-256';
@@ -28,6 +29,8 @@ const FINDINGS_PAGE_SIZE = 500;
 const gotRetryOptions: Partial<RequiredRetryOptions> = {
   limit: 3,
 };
+
+export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
 interface PaginatedResponse<T> {
   items: T[];
@@ -134,44 +137,55 @@ class VeracodeClient {
 
   public async getFindingsBatch(
     applicationGuid: string,
+    scanType: Scans,
+    cb: ResourceIteratee<Finding>,
     uri?: string,
-  ): Promise<PaginatedResponse<Finding>> {
+  ): Promise<void> {
     // we must include query params in uri string since we use it to calculate auth header
     // we only wish to have findings that violate application policies in our graph
     if (!uri) {
       uri =
         BASE_URI_V2 +
-        `applications/${applicationGuid}/findings?violates_policy=true&size=${FINDINGS_PAGE_SIZE}&scan_type=STATIC`;
+        `applications/${applicationGuid}/findings?` +
+        (scanType === Scans.SCA
+          ? `size=${FINDINGS_PAGE_SIZE}&scan_type=SCA&sca_dep_mode=BOTH&sca_scan_mode=BOTH`
+          : `violates_policy=true&size=${FINDINGS_PAGE_SIZE}&scan_type=${scanType}`);
     }
-    const authHeader = this.calculateAuthorizationHeader(uri, 'GET');
-    const findingsRequest = got.get(uri, {
-      headers: {
-        Authorization: authHeader,
-      },
-      retry: gotRetryOptions,
-    });
-    let response: FindingsApiResponse;
-    try {
-      const result = await findingsRequest;
-      response = JSON.parse(result.body);
-      const toReturn = {
-        items: response._embedded?.findings || [],
-        nextUri: response._links.next?.href,
-      };
-      if (toReturn.nextUri && toReturn.items.length !== FINDINGS_PAGE_SIZE) {
-        throw new Error(
-          'Veracode Findings Api did not serve full page despite having a nextUri, failing Findings ingestion to prevent unintended entity deletion',
-        );
-      }
-      return toReturn;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: uri,
-        status: err.response?.statusCode || 500,
-        statusText: err.response?.statusMessage || 'Internal Server Error',
+    let nextUri: string | undefined = uri;
+    do {
+      const authHeader = this.calculateAuthorizationHeader(uri, 'GET');
+      const findingsRequest = got.get(uri, {
+        headers: {
+          Authorization: authHeader,
+        },
+        retry: gotRetryOptions,
       });
-    }
+      let response: FindingsApiResponse;
+      try {
+        const result = await findingsRequest;
+        response = JSON.parse(result.body);
+
+        const findings = response._embedded?.findings || [];
+        nextUri = response._links.next?.href;
+
+        if (nextUri && findings.length !== FINDINGS_PAGE_SIZE) {
+          throw new Error(
+            'Veracode Findings Api did not serve full page despite having a nextUri, failing Findings ingestion to prevent unintended entity deletion',
+          );
+        }
+
+        for (const finding of findings) {
+          await cb(finding);
+        }
+      } catch (err) {
+        throw new IntegrationProviderAPIError({
+          cause: err,
+          endpoint: uri,
+          status: err.response?.statusCode || 500,
+          statusText: err.response?.statusMessage || 'Internal Server Error',
+        });
+      }
+    } while (nextUri);
   }
 }
 

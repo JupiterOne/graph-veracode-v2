@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Ingest `Dynamic` and `SCA` scans alongside `Static`
+
 [4.0.1] - 2022-05-24
 
 ### Added

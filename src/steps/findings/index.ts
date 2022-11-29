@@ -10,6 +10,7 @@ import {
 import { createAPIClient } from '../../client';
 
 import { IntegrationConfig } from '../../config';
+import { Scans } from '../../types';
 import {
   Entities,
   MappedRelationships,
@@ -28,7 +29,6 @@ export async function fetchFindings({
   await jobState.iterateEntities(
     { _type: Entities.ASSESSMENT._type },
     async (assessmentEntity) => {
-      let findingNextUri;
       let findingsFoundForAssessment = 0;
       const applicationKey = assessmentEntity._key.replace('assessment_', '');
       const correspondingProject = await jobState.findEntity(
@@ -40,54 +40,57 @@ export async function fetchFindings({
             assessmentEntity._key,
         );
       }
-      do {
-        const { nextUri, items } = await veracodeClient.getFindingsBatch(
+      const scanTypes = Object.values(Scans);
+      const findingsPerScan = scanTypes.map((scanType) => {
+        return veracodeClient.getFindingsBatch(
           applicationKey,
-          findingNextUri,
-        );
-        findingNextUri = nextUri;
-        for (const finding of items) {
-          const findingEntity = createFindingEntity(finding);
-          await jobState.addEntity(findingEntity);
-          await jobState.addRelationship(
-            createDirectRelationship({
-              from: assessmentEntity,
-              _class: RelationshipClass.IDENTIFIED,
-              to: findingEntity,
-            }),
-          );
-          await jobState.addRelationship(
-            createDirectRelationship({
-              from: correspondingProject,
-              _class: RelationshipClass.HAS,
-              to: findingEntity,
-            }),
-          );
+          scanType,
+          async (finding) => {
+            const findingEntity = createFindingEntity(finding);
+            await jobState.addEntity(findingEntity);
+            await jobState.addRelationship(
+              createDirectRelationship({
+                from: assessmentEntity,
+                _class: RelationshipClass.IDENTIFIED,
+                to: findingEntity,
+              }),
+            );
+            await jobState.addRelationship(
+              createDirectRelationship({
+                from: correspondingProject,
+                _class: RelationshipClass.HAS,
+                to: findingEntity,
+              }),
+            );
 
-          const cwe = finding.finding_details.cwe;
-          await jobState.addRelationship(
-            createMappedRelationship({
-              source: findingEntity,
-              _class: RelationshipClass.EXPLOITS,
-              _type: MappedRelationships.FINDING_EXPLOITS_CWE._type,
-              target: {
-                _type: Entities.CWE._type,
-                _class: Entities.CWE._class,
-                _key: `cwe-${cwe.id}`,
-                name: `CWE-${cwe.id}`,
-                displayName: `CWE-${cwe.id}`,
-                description: cwe.name,
-                references: [
-                  `https://cwe.mitre.org/data/definitions/${cwe.id}.html`,
-                ],
-              },
-              relationshipDirection: RelationshipDirection.FORWARD,
-              skipTargetCreation: false,
-            }),
-          );
-          ++findingsFoundForAssessment;
-        }
-      } while (findingNextUri);
+            const cwe = finding.finding_details.cwe;
+            await jobState.addRelationship(
+              createMappedRelationship({
+                source: findingEntity,
+                _class: RelationshipClass.EXPLOITS,
+                _type: MappedRelationships.FINDING_EXPLOITS_CWE._type,
+                target: {
+                  _type: Entities.CWE._type,
+                  _class: Entities.CWE._class,
+                  _key: `cwe-${cwe.id}`,
+                  name: `CWE-${cwe.id}`,
+                  displayName: `CWE-${cwe.id}`,
+                  description: cwe.name,
+                  references: [
+                    `https://cwe.mitre.org/data/definitions/${cwe.id}.html`,
+                  ],
+                },
+                relationshipDirection: RelationshipDirection.FORWARD,
+                skipTargetCreation: false,
+              }),
+            );
+            ++findingsFoundForAssessment;
+          },
+        );
+      });
+
+      await Promise.allSettled(findingsPerScan);
+
       logger.info(
         `${findingsFoundForAssessment} findings for assessment ${assessmentEntity.displayName}`,
       );
