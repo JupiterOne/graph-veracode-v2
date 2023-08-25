@@ -124,7 +124,7 @@ questions:
       - name: Unresolved exploits with very high severity.
         resultsAre: INFORMATIVE
         query: |
-          FIND veracode_finding with severity ~= "Very High" AND exploitabilityDescription ~= "Likely" AS s 
+          FIND veracode_finding with severity ~= ("Very High" or "critical") AND exploitabilityDescription ~= "Likely" AS s 
           RETURN 
             s.displayName,s.filePath,s.description,s.resolution
     tags:
