@@ -88,7 +88,7 @@ questions:
       - name: Applications Scanned
         resultsAre: INFORMATIVE
         query: |
-          FIND veracode_project WITH lastCompletedScanDate!=undefined
+          FIND veracode_project WITH lastCompletedScanDate != undefined
     tags:
       - veracode
       - vuln-mgmt
@@ -106,10 +106,7 @@ questions:
         query: |
           FIND veracode_project AS p 
             THAT HAS veracode_finding WITH open=true AS f
-          RETURN 
-            f.displayName as "CWE: Filename and Line Number", 
-            count(p) as Applications
-          ORDER BY Applications DESC
+          RETURN f.displayName as "CWE: Filename and Line Number", count(p) as Applications
     tags:
       - veracode
       - vuln-mgmt
@@ -124,9 +121,8 @@ questions:
       - name: Unresolved exploits with very high severity.
         resultsAre: INFORMATIVE
         query: |
-          FIND veracode_finding with severity ~= ("Very High" or "critical") AND exploitabilityDescription ~= "Likely" AS s 
-          RETURN 
-            s.displayName,s.filePath,s.description,s.resolution
+          FIND veracode_finding WITH (severity = /Very High/i OR severity = /Critical/i) AND exploitabilityDescription = /Likely/i AS s 
+          RETURN s.displayName, s.filePath, s.description, s.resolution
     tags:
       - veracode
       - vuln-mgmt    
